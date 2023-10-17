@@ -3,6 +3,7 @@ package utils
 import (
 	"errors"
 	"io/ioutil"
+	"net/url"
 	"regexp"
 	"strings"
 
@@ -23,4 +24,11 @@ func IsEmailValid(email string) bool {
 func IsPhoneValid(phone string) bool {
 	phoneRegex := regexp.MustCompile(`^(?:(?:\(?(?:00|\+)([1-4]\d\d|[1-9]\d?)\)?)?[\-\.\ \\\/]?)?((?:\(?\d{1,}\)?[\-\.\ \\\/]?){0,})(?:[\-\.\ \\\/]?(?:#|ext\.?|extension|x)[\-\.\ \\\/]?(\d+))?$`)
 	return phoneRegex.MatchString(strings.TrimSpace(phone))
+}
+func IsURLValid(str string) bool {
+	_, err := url.ParseRequestURI(str)
+	if err != nil {
+		return false
+	}
+	return true
 }

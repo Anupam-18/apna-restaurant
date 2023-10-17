@@ -15,20 +15,25 @@ func Signup(c *gin.Context) {
 	user := &models.User{}
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "invalid request body"})
+		return
 	}
 	db := database.GetDB()
-	if resp, ok := user.ValidateReqBody(db, ""); !ok {
-		c.JSON(http.StatusBadRequest, gin.H{"message": resp})
+	if resp, ok := user.ValidateUserAddRequest(db, ""); !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": resp})
+		return
 	}
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error hashing password"})
+		return
 	}
 	user.Password = string(hashedPassword)
 	db.Create(user)
 	if user.ID <= 0 {
-		c.JSON(http.StatusCreated, gin.H{"insertion_id": user.ID})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		return
 	}
+	c.JSON(http.StatusCreated, gin.H{"insertion_id": user.ID})
 }
 
 func Signin(c *gin.Context) {
@@ -39,7 +44,7 @@ func Signin(c *gin.Context) {
 		return
 	}
 	db := database.GetDB()
-	if resp, ok := user.ValidateReqBody(db, "login"); !ok {
+	if resp, ok := user.ValidateUserAddRequest(db, "login"); !ok {
 		c.JSON(http.StatusBadRequest, gin.H{"message": resp})
 		return
 	}
