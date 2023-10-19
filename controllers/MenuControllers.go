@@ -50,10 +50,11 @@ func AddMenu(c *gin.Context) {
 func GetAllMenus(c *gin.Context) {
 	fmt.Println("came inside")
 	menus := &[]models.Menu{}
-	err := db.Raw("select * from menus").Find(&menus).Error
+	err := db.Raw("select * from menus JOIN menu_items on menus.id = menu_items.menu_id").Find(&menus).Error
+	fmt.Println(*menus)
 	if err != nil {
 		fmt.Println("came here", err)
-		c.JSON(http.StatusOK, gin.H{"error": "Internal server error"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 		return
 	}
 	if len(*menus) == 0 {
@@ -104,3 +105,41 @@ func UpdateMenu(c *gin.Context) {
 	db.Save(resultantMenu)
 	c.JSON(http.StatusOK, gin.H{"updated_data": resultantMenu})
 }
+
+// [
+// 	{	"id":2
+// 		"category": "South Indian",
+// 		"menuItems": [
+// 			{
+// 				"name": "Dosa",
+// 				"price": 150,
+// 				"imageUrl": "https://images.unsplash.com/photo-1697202120309-5b456026781a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1335&q=80"
+// 			},
+// 			{
+// 				"name": "Idli",
+// 				"price": 50,
+// 				"imageUrl": "https://images.unsplash.com/photo-1697202120309-5b456026781a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1335&q=80"
+// 			},
+// 			{
+// 				"name": "Vada",
+// 				"price": 50,
+// 				"imageUrl": "https://images.unsplash.com/photo-1697202120309-5b456026781a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1335&q=80"
+// 			}
+// 		]
+// 	},
+// 	{	"id":1
+// 		"category": "Starter",
+// 		"menuItems": [
+// 			{
+// 				"name": "fries",
+// 				"price": 150,
+// 				"imageUrl": "https://images.unsplash.com/photo-1697202120309-5b456026781a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1335&q=80"
+// 			},
+// 			{
+// 				"name": "soup",
+// 				"price": 50,
+// 				"imageUrl": "https://images.unsplash.com/photo-1697202120309-5b456026781a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1335&q=80"
+// 			}
+// 		]
+// 	}
+// ]
